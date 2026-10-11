@@ -17,6 +17,9 @@ public class ChatRequest extends ChatSession {
     "input": [ * {"type": "text", "content": "Hello"}, {"type": "image", "data_url": "..."} * ] 
     Object allows Jackson to serialize both forms. */
     protected Object input;
+
+    protected Boolean stream = false;
+
     @JsonProperty("previous_response_id")
     protected String previousResponseId;
 
@@ -32,7 +35,6 @@ public class ChatRequest extends ChatSession {
         this.reasoning = session.reasoning;
         this.repeatPenalty = session.repeatPenalty;
         this.store = session.store;
-        this.stream = session.stream;
         this.systemPrompt = session.systemPrompt;
         this.temperature = session.temperature;
         this.topK = session.topK;
@@ -55,6 +57,14 @@ public class ChatRequest extends ChatSession {
         this.previousResponseId = previousResponseId;
     }
 
+    public Boolean getStream() {
+        return stream;
+    }
+
+    public void setStream(Boolean stream) {
+        this.stream = stream;
+    }
+
     @Override
     public ChatRequest clone(Cloner cloner) throws CloneNotSupportedException {
         return F.cast(super.clone(cloner));
@@ -64,6 +74,5 @@ public class ChatRequest extends ChatSession {
     public ChatRequest clone() throws CloneNotSupportedException {
         return F.cast(super.clone());
     }
-    
-    
+
 }

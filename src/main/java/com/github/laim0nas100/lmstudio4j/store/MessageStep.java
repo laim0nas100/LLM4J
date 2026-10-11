@@ -1,16 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.github.laim0nas100.lmstudio4j.store;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.laim0nas100.lmstudio4j.model.v1.LLMException;
 import com.github.laim0nas100.lmstudio4j.model.v1.LLMToolEvent;
-import com.github.laim0nas100.lmstudio4j.model.v1.ProviderInfo;
 import com.github.laim0nas100.lmstudio4j.store.MessageStep.*;
-import java.util.Map;
 
 /**
  *
@@ -24,16 +18,25 @@ import java.util.Map;
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = TextStep.class, name = "text"),
+    @JsonSubTypes.Type(value = ImageStep.class, name = "image"),
     @JsonSubTypes.Type(value = ReasoningStep.class, name = "reasoning"),
     @JsonSubTypes.Type(value = ToolCallStep.class, name = "tool_call"),
     @JsonSubTypes.Type(value = ErrorStep.class, name = "error")
 })
 public interface MessageStep {
-
+    
     public record TextStep(String type, String text) implements MessageStep {
 
         public TextStep(String text) {
             this("text", text);
+        }
+
+    }
+    
+    public record ImageStep(String type, String dataUrl) implements MessageStep {
+
+        public ImageStep(String url) {
+            this("image", url);
         }
 
     }

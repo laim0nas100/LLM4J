@@ -108,6 +108,7 @@ public class TableCreation {
         conversation_id TEXT NOT NULL,
         branch_id TEXT NOT NULL,
         parent_message_id TEXT,
+        chat_template_id TEXT NOT NULL,                                                      
         role TEXT NOT NULL
             CHECK (role IN (
                 'USER', 'ASSISTANT', 'SYSTEM', 'DEVELOPER', 'TOOL'
@@ -129,7 +130,6 @@ public class TableCreation {
             ),
         provider_response_id TEXT,
         provider TEXT,
-        model TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
 

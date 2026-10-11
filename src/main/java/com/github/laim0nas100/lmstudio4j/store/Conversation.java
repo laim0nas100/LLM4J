@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @author Lemmin
  */
-public record Conversation(String id, String default_chat_template_id) {
+public record Conversation(String id, String default_chat_template_id) implements Entity {
 
     public enum MessageRole {
         USER,
@@ -30,7 +30,7 @@ public record Conversation(String id, String default_chat_template_id) {
             String name,
             String config_json,
             Instant created_at
-            ) {}
+            ) implements Entity {}
 
     public record ChatBranch(
             String id,
@@ -40,23 +40,25 @@ public record Conversation(String id, String default_chat_template_id) {
             String forked_from_message_id,
             Instant created_at,
             Instant updated_at
-            ) {}
+            ) implements Entity {}
 
     public record ChatMessage(
             String id,
             String conversation_id,
             String branch_id,
             String parent_message_id,
+            String chat_template_id,
             MessageRole role,
             MessageStatus status,
             String content_json,
+            String source_id,
+            String source,
             String source_json,
             List<String> attachments,
             String provider_response_id,
             String provider,
-            String model,
             Instant created_at,
             Instant updated_at
-            ) {}
+            ) implements Entity {}
 
 }

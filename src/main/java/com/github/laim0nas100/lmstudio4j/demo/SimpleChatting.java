@@ -1,7 +1,7 @@
 package com.github.laim0nas100.lmstudio4j.demo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.laim0nas100.lmstudio4j.Global;
+import static com.github.laim0nas100.lmstudio4j.Global.jsonMapper;
 import com.github.laim0nas100.lmstudio4j.model.v1.*;
 import com.github.laim0nas100.uncheckedutils.SafeOpt;
 import com.github.mizosoft.methanol.AdapterCodec;
@@ -10,6 +10,8 @@ import com.github.mizosoft.methanol.Methanol;
 import com.github.mizosoft.methanol.MoreBodyHandlers;
 import com.github.mizosoft.methanol.MutableRequest;
 import com.github.mizosoft.methanol.adapter.jackson.JacksonAdapterFactory;
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.json.McpJsonMapper;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,10 +31,9 @@ import java.util.stream.Stream;
  */
 public class SimpleChatting {
 
-    protected final JsonMapper mapper = new JsonMapper();
     protected final AdapterCodec adapterCodec = AdapterCodec.newBuilder()
-            .encoder(JacksonAdapterFactory.createJsonEncoder(mapper))
-            .decoder(JacksonAdapterFactory.createJsonDecoder(mapper))
+            .encoder(JacksonAdapterFactory.createJsonEncoder(jsonMapper))
+            .decoder(JacksonAdapterFactory.createJsonDecoder(jsonMapper))
             .build();
 
     protected final Methanol methanol;
@@ -54,9 +55,7 @@ public class SimpleChatting {
     }
 
     public ChatResponse sendSync(ChatRequest request) throws IOException, InterruptedException {
-        if (request.getStream()) {
-            throw new IllegalArgumentException("Doesn't suport streamed responses");
-        }
+        request.setStream(Boolean.FALSE);
         MutableRequest POST = MutableRequest.POST(
                 "/api/v1/chat",
                 request,
@@ -69,13 +68,11 @@ public class SimpleChatting {
                 POST, HttpResponse.BodyHandlers.ofString()
         );
 
-        return mapper.readValue(response.body(), ChatResponse.class);
+        return jsonMapper.readValue(response.body(), ChatResponse.class);
     }
 
     public InputStream sendAsyncRaw(ChatRequest request) throws IOException, InterruptedException {
-        if (!request.getStream()) {
-            throw new IllegalArgumentException("Doesn't suport non-streamed responses");
-        }
+        request.setStream(Boolean.TRUE);
         MutableRequest POST = MutableRequest.POST(
                 "/api/v1/chat",
                 request,
@@ -93,9 +90,7 @@ public class SimpleChatting {
     }
 
     public Stream<LLMEvent> sendAsyncStream(ChatRequest request) throws IOException, InterruptedException {
-        if (!request.getStream()) {
-            throw new IllegalArgumentException("Doesn't suport non-streamed responses");
-        }
+       request.setStream(Boolean.TRUE);
         MutableRequest POST = MutableRequest.POST(
                 "/api/v1/chat",
                 request,
@@ -113,9 +108,7 @@ public class SimpleChatting {
     }
 
     public Reader sendAsyncReader(ChatRequest request) throws IOException, InterruptedException {
-        if (!request.getStream()) {
-            throw new IllegalArgumentException("Doesn't suport non-streamed responses");
-        }
+        request.setStream(Boolean.TRUE);
         MutableRequest POST = MutableRequest.POST(
                 "/api/v1/chat",
                 request,
@@ -144,9 +137,15 @@ public class SimpleChatting {
         }
         String data = msg.substring(dataIndex + 6).trim();
         try {
-            return mapper.readValue(data, LLMEvent.class);
-        } catch (JsonProcessingException ex) {
-            throw new RuntimeException(ex);
+            return jsonMapper.readValue(data, LLMEvent.class);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            try {
+                return jsonMapper.readValue(data, LLMEvent.OtherLLMEvent.class);
+//           
+            } catch (IOException ex1) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -198,7 +197,7 @@ public class SimpleChatting {
                             return null;
                         } else {
                             LLMEvent parsed = parseEvent(String.valueOf(buffer, 0, read));
-                            if(parsed == null){
+                            if (parsed == null) {
                                 continue;
                             }
                             return next = parsed;

@@ -5,19 +5,22 @@
 package com.github.laim0nas100.lmstudio4j.demo;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.github.laim0nas100.commonslb.DLog;
 import com.github.laim0nas100.lmstudio4j.model.v1.*;
+import com.github.laim0nas100.lmstudio4j.model.v1.LLMToolEvent.ToolCallContent;
 import com.github.mizosoft.methanol.AdapterCodec;
 import com.github.mizosoft.methanol.MediaType;
 import com.github.mizosoft.methanol.Methanol;
 import com.github.mizosoft.methanol.MutableRequest;
 import com.github.mizosoft.methanol.adapter.jackson.JacksonAdapterFactory;
-import java.io.BufferedInputStream;
-import java.io.InputStreamReader;
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.json.TypeRef;
+import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -31,28 +34,62 @@ public class Test {
     public static void main(String... args) throws Exception {
         ChatSession session = new ChatSession();
         session.setReasoning(Reasoning.OFF);
-        session.setStream(true);
         session.setModel("qwen/qwen3.5-9b");
-//        List<Integration> integrations = new ArrayList<>();
+        List<Integration> integrations = new ArrayList<>();
 //        integrations.add(new PluginIntegration("mcp/brightdata"));
-//        session.setIntegrations(integrations);
+        integrations.add(new PluginIntegration("mcp/local"));
+        session.setIntegrations(integrations);
         SimpleChatting simpleChatting = new SimpleChatting(session);
-        Map<String, String> env = System.getenv();
-        DLog.printLines(env.entrySet().iterator());
         String token = System.getenv("BEARER_TOKEN");
         System.out.println(token);
         simpleChatting.setBearerToken(token);
 
         ChatRequest chatRequest = new ChatRequest(session);
-        chatRequest.setInput("A creative haiku about the AI revolution please");
-//        chatRequest.setInput("Hello, tell me a word for each letter that starts with every letter in the english alphabet");
-        
+        chatRequest.setInput(" Access the resource with URI: attachments/1/text_file.txt\n"
+                + "exposed in the mcp/local. Use the tool \"read_attachment\"\n"
+                + "Tell me what the password in the text file is");
+//        chatRequest.setInput("Hello, what is current temperature in Vilnius, you can use the web search");
+
 //        Iterator<LLMEvent> sendAsync = simpleChatting.sendAsync2(chatRequest);
-        
         Stream<LLMEvent> stream = simpleChatting.sendAsyncStream(chatRequest);
         Thread.sleep(3000); // even with delay, no tokens are skipped
-        stream.forEach(event ->{
-            System.out.println(event);
+        List<LLMEvent.OtherLLMEvent> others = new ArrayList<>();
+        List<LLMToolEvent> toolEvents = new ArrayList<>();
+        List<LLMEvent.LLMError> errors = new ArrayList<>();
+
+        stream.forEach(event -> {
+            if (event instanceof LLMEvent.OtherLLMEvent ev) {
+                Objects.requireNonNull(ev);
+                others.add(ev);
+
+            }
+
+            if (event instanceof LLMEvent.LLMError ev) {
+                Objects.requireNonNull(ev);
+                errors.add(ev);
+            }
+
+            if (event instanceof LLMToolEvent ev) {
+                Objects.requireNonNull(ev);
+                toolEvents.add(ev);
+                if (ev instanceof LLMToolEvent.ToolCallSuccess toolCall) {
+                    
+                    McpJsonMapper mapper = McpJsonDefaults.getMapper();
+                    
+                   toolCall.tryParse(mapper).ifPresent(list ->{
+                        for(ToolCallContent content:list){
+                            System.out.println(content.text());
+                        }
+                   });
+//                    try {
+//                        mapper.readValue(toolCall.output(), new TypeRef<List<ToolCallContent>>(){});
+//                    } catch (IOException ex) {
+//                        ex.printStackTrace();
+//                    }
+                    
+                }
+            }
+            System.out.print(event.printable());
         });
         stream.close();
 //        while(sendAsync.hasNext()){
@@ -105,7 +142,6 @@ public class Test {
                 BodyHandlers.ofString()
         );
 
-        
         ChatResponse readValue = mapper.readValue(response.body(), ChatResponse.class);
 
         System.out.println(readValue.toString());

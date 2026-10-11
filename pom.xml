@@ -107,7 +107,7 @@
         <dependency>
             <groupId>com.github.laim0nas100</groupId>
             <artifactId>DB_FileStore</artifactId>
-            <version>2026.10v2</version>
+            <version>local-jar</version>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -120,6 +120,17 @@
             <version>2026.07v4</version>
             <type>jar</type>
         </dependency>
-        
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>7.0.2</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.51.1.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

@@ -19,7 +19,6 @@ public class ChatSession extends SelfIDBean implements CloneSupport<Object> {
     @JsonProperty("system_prompt")
     protected String systemPrompt;
     protected List<Integration> integrations;
-    protected Boolean stream = false;
     protected Double temperature;
     @JsonProperty("top_p")
     protected Double topP;
@@ -62,14 +61,6 @@ public class ChatSession extends SelfIDBean implements CloneSupport<Object> {
 
     public void setIntegrations(List<Integration> integrations) {
         this.integrations = integrations;
-    }
-
-    public Boolean getStream() {
-        return stream;
-    }
-
-    public void setStream(Boolean stream) {
-        this.stream = stream;
     }
 
     public Double getTemperature() {

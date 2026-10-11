@@ -198,6 +198,10 @@ public class GenericMcpServer {
                 builder.resources
         );
     }
+    
+    protected void init(){
+        
+    }
 
     public GenericMcpServer(
             String serverName,
@@ -348,6 +352,8 @@ public class GenericMcpServer {
             this.mcpAsync = builder.build();
             this.mcpSync = null;
         }
+        
+        init();
 
     }
 

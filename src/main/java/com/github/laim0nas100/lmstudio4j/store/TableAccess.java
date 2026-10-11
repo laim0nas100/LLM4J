@@ -6,7 +6,9 @@ import com.github.laim0nas100.lmstudio4j.store.QuickFields.RefInfo;
 import com.github.laim0nas100.uncheckedutils.SafeOpt;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
 
 /**
@@ -45,6 +47,18 @@ public class TableAccess<T> implements JdbiMixin {
         return idGenerator.getAndIncrement().get();
     }
 
+    public SafeOpt<List<T>> search(Function<String, String> stringDecor, Function<Query, Query> queryDecor) {
+        return safeHandle(handle -> {
+            String s = stringDecor.apply("SELECT " + refInfo.getFieldNamesFormatted() + " FROM " + tableName);
+
+            return queryDecor.apply(handle.createQuery(s))
+                    .mapToMap()
+                    .map(res -> {
+                        return refInfo.initObject(res).throwAnyGet();
+                    }).list();
+        });
+    }
+
     public SafeOpt<List<T>> getAll() {
         return safeHandle(handle -> {
             return handle.createQuery("SELECT " + refInfo.getFieldNamesFormatted() + " FROM " + tableName)
@@ -74,6 +88,25 @@ public class TableAccess<T> implements JdbiMixin {
         }, id);
     }
 
+    public SafeOpt<T> insert(T object) {
+        return safeHandle(handle -> {
+            StringBuilder sb = new StringBuilder();
+            String pre = ":";
+            String post = "";
+            sb.append("INSERT INTO ").append(tableName).append(" (").append(refInfo.getFieldNamesFormatted()).append(") ")
+                    .append("VALUES (").append(refInfo.getFieldNamesFormatted(pre, post)).append(") ");
+
+            Update update = handle.createUpdate(sb.toString());
+
+            for (QuickFields.RefInfoField field : refInfo.getFields()) {
+                update.bind(field.getName(), field.getFieldExternalValue(object).throwAnyGet());
+            }
+
+            update.execute();
+            return object;
+        }, object);
+    }
+
     public SafeOpt<Integer> upsert(T object) {
         return safeHandle(handle -> {
             StringBuilder sb = new StringBuilder();
@@ -101,7 +134,7 @@ public class TableAccess<T> implements JdbiMixin {
             Update update = handle.createUpdate(sb.toString());
 
             for (QuickFields.RefInfoField field : refInfo.getFields()) {
-                update.bind(field.getName(), field.getFieldValue(object).throwAnyGet());
+                update.bind(field.getName(), field.getFieldExternalValue(object).throwAnyGet());
             }
 
             return update.execute();

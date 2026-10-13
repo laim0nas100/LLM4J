@@ -1,6 +1,6 @@
-package com.github.laim0nas100.llm4jllm4j;
+package com.github.laim0nas100.llm4j.lmstudio.v1.impl;
 
-import static com.github.laim0nas100.llm4jllm4j.Global.jsonMapper;
+import static com.github.laim0nas100.llm4j.Global.jsonMapper;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatRequest;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatResponse;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  *
  * @author Lemmin
  */
-public class LLMChattingClientV1 {
+public class LMStudioChattingClient {
 
     
     public static final String ENDPOINT = "/api/v1/chat";
@@ -31,11 +31,11 @@ public class LLMChattingClientV1 {
     protected final Methanol methanol;
     protected final String bearerToken;
 
-    public LLMChattingClientV1(String bearerToken) {
+    public LMStudioChattingClient(String bearerToken) {
         this("http://localhost:1234", bearerToken);
     }
 
-    public LLMChattingClientV1(String baseURI, String bearerToken) {
+    public LMStudioChattingClient(String baseURI, String bearerToken) {
         Objects.requireNonNull(baseURI);
         this.bearerToken = Objects.requireNonNull(bearerToken);
         methanol = Methanol.newBuilder()

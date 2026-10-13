@@ -1,11 +1,10 @@
 package com.github.laim0nas100.llm4j.demo;
 
+import static com.github.laim0nas100.llm4j.Global.jsonMapper;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatRequest;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatResponse;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatSession;
-import com.github.laim0nas100.llm4jllm4j.Global;
-import static com.github.laim0nas100.llm4jllm4j.Global.jsonMapper;
 import com.github.laim0nas100.uncheckedutils.SafeOpt;
 import com.github.mizosoft.methanol.AdapterCodec;
 import com.github.mizosoft.methanol.MediaType;
@@ -13,8 +12,6 @@ import com.github.mizosoft.methanol.Methanol;
 import com.github.mizosoft.methanol.MoreBodyHandlers;
 import com.github.mizosoft.methanol.MutableRequest;
 import com.github.mizosoft.methanol.adapter.jackson.JacksonAdapterFactory;
-import io.modelcontextprotocol.json.McpJsonDefaults;
-import io.modelcontextprotocol.json.McpJsonMapper;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;

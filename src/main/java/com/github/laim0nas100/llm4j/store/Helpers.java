@@ -1,7 +1,7 @@
 package com.github.laim0nas100.llm4j.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.laim0nas100.llm4jllm4j.Global;
+import com.github.laim0nas100.llm4j.Global;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ImageInput;
 import com.github.laim0nas100.llm4j.lmstudio.v1.TextInput;
 import com.github.laim0nas100.llm4j.store.Conversation.MessageRole;

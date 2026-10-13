@@ -4,7 +4,7 @@ import com.github.laim0nas100.dbstore.filestore.FileStoreDB;
 import com.github.laim0nas100.dbstore.filestore.ResourceFull;
 import com.github.laim0nas100.dbstore.filestore.ResourceMetadata;
 import com.github.laim0nas100.dbstore.keystore.KeyValueStore;
-import com.github.laim0nas100.llm4jllm4j.AttachmentTextDetector;
+import com.github.laim0nas100.llm4j.AttachmentTextDetector;
 import com.github.laim0nas100.uncheckedutils.SafeOpt;
 import com.github.laim0nas100.uncheckedutils.func.UncheckedFunction;
 import io.modelcontextprotocol.json.McpJsonMapper;

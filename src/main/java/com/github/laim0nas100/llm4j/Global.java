@@ -1,4 +1,4 @@
-package com.github.laim0nas100.llm4jllm4j;
+package com.github.laim0nas100.llm4j;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 

@@ -1,4 +1,4 @@
-package com.github.laim0nas100.llm4jllm4j;
+package com.github.laim0nas100.llm4j;
 
 import com.github.laim0nas100.commonslb.Java;
 import com.github.laim0nas100.commonslb.io.autopath.AutoPath;

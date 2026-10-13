@@ -1,0 +1,27 @@
+package com.github.laim0nas100.llm4j.lmstudio.v1;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+/**
+ *
+ * @author Lemmin
+ */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(
+        value = TextInput.class,
+        name = "text"
+    ),
+    @JsonSubTypes.Type(
+        value = ImageInput.class,
+        name = "image"
+    )
+})
+public interface InputItem {
+    
+}

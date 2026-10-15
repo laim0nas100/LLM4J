@@ -1,6 +1,7 @@
 package com.github.laim0nas100.llm4j.store;
 
 import com.github.laim0nas100.dbstore.JdbiMixin;
+import com.github.laim0nas100.llm4j.GlobalCTX.Globals;
 import com.github.laim0nas100.llm4j.store.Conversation.*;
 import com.github.laim0nas100.llm4j.store.Helpers.ChatBranchHold;
 import com.github.laim0nas100.llm4j.store.Helpers.ChatContentHold;
@@ -15,7 +16,7 @@ import java.util.List;
  *
  * @author Lemmin
  */
-public interface ChatStore extends JdbiMixin {
+public interface ChatStore extends JdbiMixin, Globals {
 
     public <T extends Entity> TableAccess<T> tableFor(Class<T> type);
 
@@ -32,10 +33,16 @@ public interface ChatStore extends JdbiMixin {
     }
 
     public default SafeOpt<ChatTemplate> createChatTemplate(ChatTemplateHold hold) {
+        return safeHandle(h -> {
+            TableAccess<ChatTemplate> table = tableFor(ChatTemplate.class);
+            return createChatTemplate(String.valueOf(table.nextId()), hold).throwAnyGet();
+        }, hold);
+    }
+
+    public default SafeOpt<ChatTemplate> createChatTemplate(String id, ChatTemplateHold hold) {
 
         return safeHandle(handle -> {
             TableAccess<ChatTemplate> table = tableFor(ChatTemplate.class);
-            String id = String.valueOf(table.nextId());
 
             String templateName = hold.getTemplateName();
             if (templateName == null) {
@@ -61,6 +68,13 @@ public interface ChatStore extends JdbiMixin {
     }
 
     public default SafeOpt<Conversation> createConversation(String templateName) {
+        return safeHandle(h -> {
+            TableAccess<Conversation> table = tableFor(Conversation.class);
+            return createConversation(String.valueOf(table.nextId()), templateName).throwAnyGet();
+        }, templateName);
+    }
+
+    public default SafeOpt<Conversation> createConversation(String id, String templateName) {
         return safeHandle(handle -> {
             TableAccess<Conversation> table = tableFor(Conversation.class);
             List<ChatTemplate> templates = searchChatTemplate(templateName).throwAnyGet();
@@ -68,17 +82,22 @@ public interface ChatStore extends JdbiMixin {
                 throw new IllegalStateException("No templates by the name:" + templateName + " were found");
             }
             ChatTemplate template = templates.get(0);
-            String id = String.valueOf(table.nextId());
-
             return table.insert(new Conversation(id, template.id())).throwAnyGet();
 
         }, templateName);
     }
 
     public default SafeOpt<ChatBranch> createBranch(ChatBranchHold hold) {
-        return safeHandle(handle -> {
+        return safeHandle(h -> {
             TableAccess<ChatBranch> table = tableFor(ChatBranch.class);
             String id = String.valueOf(table.nextId());
+            return createBranch(id, hold).throwAnyGet();
+        }, hold);
+    }
+
+    public default SafeOpt<ChatBranch> createBranch(String id, ChatBranchHold hold) {
+        return safeHandle(handle -> {
+            TableAccess<ChatBranch> table = tableFor(ChatBranch.class);
 
             Instant now = Instant.now();
             ChatBranch chatBranch = new ChatBranch(id, hold.getConversationId(), hold.getTitle(),
@@ -88,11 +107,19 @@ public interface ChatStore extends JdbiMixin {
     }
 
     public default SafeOpt<ChatMessage> createMessage(MessageIdHold ids, ChatContentHold content, MessageProxyHold msgProxy) {
+        return safeHandle(h -> {
+            TableAccess<ChatMessage> table = tableFor(ChatMessage.class);
+            String id = String.valueOf(table.nextId());
+            return createMessage(id, ids, content, msgProxy).throwAnyGet();
+        }, ids, content, msgProxy);
+    }
+
+    public default SafeOpt<ChatMessage> createMessage(String id, MessageIdHold ids, ChatContentHold content, MessageProxyHold msgProxy) {
         return safeHandle(handle -> {
             TableAccess<ChatMessage> table = tableFor(ChatMessage.class);
 
             Instant now = Instant.now();
-            String id = String.valueOf(table.nextId());
+
             ChatMessage chatMessage = new ChatMessage(
                     id,
                     ids.getConversationId(),
@@ -106,7 +133,7 @@ public interface ChatStore extends JdbiMixin {
                     content.getAttachments(),
                     content.getContent_json(),
                     content.getProvider(),
-                    content.getProvder_json(),
+                    content.getProvider_json(),
                     now,
                     now
             );

@@ -1,9 +1,9 @@
 package com.github.laim0nas100.llm4j.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.laim0nas100.llm4j.Global;
-import com.github.laim0nas100.llm4j.lmstudio.v1.ImageInput;
-import com.github.laim0nas100.llm4j.lmstudio.v1.TextInput;
+import com.github.laim0nas100.llm4j.GlobalCTX;
+import com.github.laim0nas100.llm4j.lmstudio.v1.InputItem.ImageInput;
+import com.github.laim0nas100.llm4j.lmstudio.v1.InputItem.TextInput;
 import com.github.laim0nas100.llm4j.store.Conversation.MessageRole;
 import com.github.laim0nas100.llm4j.store.Conversation.MessageStatus;
 import com.github.laim0nas100.llm4j.store.MessageStep.*;
@@ -17,9 +17,9 @@ import java.util.List;
 public class Helpers {
 
     public static class MessageProxyHold {
-
+        
         public String proxy;
-        public String proxy_json;
+        public String proxy_json = "{}";
 
         public String getProxy() {
             return proxy;
@@ -35,6 +35,13 @@ public class Helpers {
 
         public void setProxy_json(String proxy_json) {
             this.proxy_json = proxy_json;
+        }
+        
+        public static MessageProxyHold noProxy(){
+            var hold = new MessageProxyHold();
+            hold.proxy = null;
+            hold.proxy_json = "{}";
+            return hold;
         }
     }
 
@@ -76,15 +83,25 @@ public class Helpers {
         public void setParentMessageId(String parentMessageId) {
             this.parentMessageId = parentMessageId;
         }
+        
+        public static MessageIdHold respondingTo(Conversation.ChatMessage msg){
+            var hold = new MessageIdHold();
+            hold.branchId = msg.branch_id();
+            hold.conversationId = msg.conversation_id();
+            hold.parentMessageId = msg.id();
+            hold.templateId = msg.chat_template_id();
+            return hold;
+            
+        }
 
     }
 
     public static class ChatContentHold {
 
         public List<String> attachments = new ArrayList<>();
-        public String content_json;
+        public String content_json = "{}";
         public String provider;
-        public String provder_json;
+        public String provider_json = "{}";
         public MessageRole role;
         public MessageStatus status = Conversation.MessageStatus.COMPLETE;
 
@@ -112,12 +129,12 @@ public class Helpers {
             this.provider = provider;
         }
 
-        public String getProvder_json() {
-            return provder_json;
+        public String getProvider_json() {
+            return provider_json;
         }
 
-        public void setProvder_json(String provder_json) {
-            this.provder_json = provder_json;
+        public void setProvider_json(String provider_json) {
+            this.provider_json = provider_json;
         }
 
         public MessageRole getRole() {
@@ -134,6 +151,24 @@ public class Helpers {
 
         public void setStatus(MessageStatus status) {
             this.status = status;
+        }
+        
+        public static ChatContentHold userMessage(String provider, String content_json){
+            var hold = new ChatContentHold();
+            hold.setProvider(provider);
+            hold.setContent_json(content_json);
+            hold.setStatus(MessageStatus.COMPLETE);
+            hold.setRole(MessageRole.USER);
+            return hold;
+        }
+        
+        public static ChatContentHold startAssitantResponse(String provider){
+            var hold = new ChatContentHold();
+            hold.setProvider(provider);
+            hold.setContent_json("{}");
+            hold.setStatus(MessageStatus.STREAMING);
+            hold.setRole(MessageRole.ASSISTANT);
+            return hold;
         }
 
     }
@@ -177,10 +212,18 @@ public class Helpers {
         public void setForkedFromId(String forkedFromId) {
             this.forkedFromId = forkedFromId;
         }
+
+        public static ChatBranchHold newRootBranch(String conversationId) {
+            ChatBranchHold hold = new ChatBranchHold();
+            hold.setConversationId(conversationId);
+            return hold;
+        }
+
     }
-    
-    public static class ChatTemplateHold{
-                public static final String DEFAULT_CHAT_TEMPLATE_NAME = "DEFAULT_TEMPLATE";
+
+    public static class ChatTemplateHold {
+
+        public static final String DEFAULT_CHAT_TEMPLATE_NAME = "DEFAULT_TEMPLATE";
 
         public String templateName;
         public String config_json;
@@ -200,32 +243,7 @@ public class Helpers {
         public void setConfig_json(String config_json) {
             this.config_json = config_json;
         }
-        
-        
-        
+
     }
 
-    public static List<MessageStep> convertUserInput(Object content) {
-        if (content instanceof String str) {
-            return List.of(new MessageStep.TextStep(str));
-        } else if (content instanceof List list) {
-            List<MessageStep> steps = new ArrayList<>();
-            for (Object input : list) {
-                if (input instanceof TextInput textInput) {
-                    steps.add(new TextStep(textInput.getContent()));
-                } else if (input instanceof ImageInput imageInput) {
-                    steps.add(new ImageStep(imageInput.getDataUrl()));
-                } else {
-                    steps.addAll(convertUserInput(input));
-                }
-            }
-            return steps;
-        } else {
-            return List.of();
-        }
-    }
-
-    public static String userInputToJson(Object content) throws JsonProcessingException {
-        return Global.jsonMapper.writeValueAsString(convertUserInput(content));
-    }
 }

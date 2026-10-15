@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @author Lemmin
  */
-public record Conversation(String id, String default_chat_template_id) implements Entity {
+public record Conversation(String id, String chat_default_template_id) implements Entity {
 
     public enum MessageRole {
         USER,

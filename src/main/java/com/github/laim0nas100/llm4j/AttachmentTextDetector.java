@@ -15,7 +15,7 @@ public class AttachmentTextDetector {
 
     public static TextDetectionResult detectText(TikaInputStream inputStream, String filename, String providedMimeType) throws Exception {
 
-        inputStream.enableRewind(Defaults.MEMORY_BUDGET.get());
+        inputStream.enableRewind(GlobalCTX.MEMORY_BUDGET.get());
         String detectedType = TIKA.detect(inputStream);
 
         inputStream.rewind();

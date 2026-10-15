@@ -1,6 +1,6 @@
 package com.github.laim0nas100.llm4j.lmstudio.v1.impl;
 
-import static com.github.laim0nas100.llm4j.Global.jsonMapper;
+import com.github.laim0nas100.llm4j.GlobalCTX.Globals;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatRequest;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatResponse;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
@@ -19,13 +19,13 @@ import java.util.stream.Stream;
  *
  * @author Lemmin
  */
-public class LMStudioChattingClient {
+public class LMStudioChattingClient implements Globals{
 
     
     public static final String ENDPOINT = "/api/v1/chat";
     protected final AdapterCodec adapterCodec = AdapterCodec.newBuilder()
-            .encoder(JacksonAdapterFactory.createJsonEncoder(jsonMapper))
-            .decoder(JacksonAdapterFactory.createJsonDecoder(jsonMapper))
+            .encoder(JacksonAdapterFactory.createJsonEncoder())
+            .decoder(JacksonAdapterFactory.createJsonDecoder(jsonMapper()))
             .build();
 
     protected final Methanol methanol;
@@ -56,7 +56,7 @@ public class LMStudioChattingClient {
                 POST, HttpResponse.BodyHandlers.ofString()
         );
 
-        return jsonMapper.readValue(response.body(), ChatResponse.class);
+        return jsonMapper().readValue(response.body(), ChatResponse.class);
     }
 
     public InputStream sendAsyncRaw(ChatRequest request) throws IOException, InterruptedException {
@@ -98,10 +98,10 @@ public class LMStudioChattingClient {
         }
         String data = msg.substring(dataIndex + 6).trim();
         try {
-            return jsonMapper.readValue(data, LLMEvent.class);
+            return jsonMapper().readValue(data, LLMEvent.class);
         } catch (IOException ex) {
             try {
-                return jsonMapper.readValue(data, LLMEvent.OtherLLMEvent.class);
+                return jsonMapper().readValue(data, LLMEvent.OtherLLMEvent.class);
             } catch (IOException ex1) {
                 ex1.addSuppressed(ex);
                 return new LLMEvent.APIError(ex1);

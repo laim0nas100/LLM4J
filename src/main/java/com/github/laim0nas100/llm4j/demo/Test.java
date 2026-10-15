@@ -9,7 +9,7 @@ import com.github.laim0nas100.llm4j.lmstudio.v1.Reasoning;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatResponse;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatRequest;
-import com.github.laim0nas100.llm4j.lmstudio.v1.PluginIntegration;
+import com.github.laim0nas100.llm4j.lmstudio.v1.Integration.PluginIntegration;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMToolEvent;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatSession;
 import com.fasterxml.jackson.databind.json.JsonMapper;

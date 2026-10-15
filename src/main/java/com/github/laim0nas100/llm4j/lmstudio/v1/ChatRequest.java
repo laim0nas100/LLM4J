@@ -27,18 +27,7 @@ public class ChatRequest extends ChatSession {
     }
 
     public ChatRequest(ChatSession session) {
-        this.contextLength = session.contextLength;
-        this.integrations = Cloner.get().cloneCollection(session.integrations, ArrayList::new);
-        this.maxOutputTokens = session.maxOutputTokens;
-        this.minP = session.minP;
-        this.model = session.model;
-        this.reasoning = session.reasoning;
-        this.repeatPenalty = session.repeatPenalty;
-        this.store = session.store;
-        this.systemPrompt = session.systemPrompt;
-        this.temperature = session.temperature;
-        this.topK = session.topK;
-        this.topP = session.topP;
+        super(session);
     }
 
     public Object getInput() {
@@ -74,5 +63,12 @@ public class ChatRequest extends ChatSession {
     public ChatRequest clone() throws CloneNotSupportedException {
         return F.cast(super.clone());
     }
+
+    @Override
+    public ChatSession justConfig() {
+        return new ChatSession(this);
+    }
+    
+    
 
 }

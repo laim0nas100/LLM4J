@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import com.github.laim0nas100.commonslb.reflect.Refl.SelfIDBean;
+import com.github.laim0nas100.llm4j.lmstudio.v1.OutputItem.MessageOutput;
 
 /**
  *

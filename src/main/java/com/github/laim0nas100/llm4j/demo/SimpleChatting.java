@@ -1,6 +1,7 @@
 package com.github.laim0nas100.llm4j.demo;
 
-import static com.github.laim0nas100.llm4j.Global.jsonMapper;
+import com.github.laim0nas100.llm4j.GlobalCTX;
+import com.github.laim0nas100.llm4j.GlobalCTX.Globals;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatRequest;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatResponse;
@@ -29,11 +30,11 @@ import java.util.stream.Stream;
  *
  * @author Lemmin
  */
-public class SimpleChatting {
+public class SimpleChatting implements Globals {
 
     protected final AdapterCodec adapterCodec = AdapterCodec.newBuilder()
-            .encoder(JacksonAdapterFactory.createJsonEncoder(jsonMapper))
-            .decoder(JacksonAdapterFactory.createJsonDecoder(jsonMapper))
+            .encoder(JacksonAdapterFactory.createJsonEncoder(jsonMapper()))
+            .decoder(JacksonAdapterFactory.createJsonDecoder(jsonMapper()))
             .build();
 
     protected final Methanol methanol;
@@ -68,7 +69,7 @@ public class SimpleChatting {
                 POST, HttpResponse.BodyHandlers.ofString()
         );
 
-        return jsonMapper.readValue(response.body(), ChatResponse.class);
+        return jsonMapper().readValue(response.body(), ChatResponse.class);
     }
 
     public InputStream sendAsyncRaw(ChatRequest request) throws IOException, InterruptedException {
@@ -137,11 +138,11 @@ public class SimpleChatting {
         }
         String data = msg.substring(dataIndex + 6).trim();
         try {
-            return jsonMapper.readValue(data, LLMEvent.class);
+            return jsonMapper().readValue(data, LLMEvent.class);
         } catch (IOException ex) {
             ex.printStackTrace();
             try {
-                return jsonMapper.readValue(data, LLMEvent.OtherLLMEvent.class);
+                return jsonMapper().readValue(data, LLMEvent.OtherLLMEvent.class);
 //           
             } catch (IOException ex1) {
                 throw new RuntimeException(ex);

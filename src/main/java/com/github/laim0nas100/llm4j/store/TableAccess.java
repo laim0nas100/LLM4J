@@ -38,6 +38,14 @@ public class TableAccess<T> implements JdbiMixin {
 
     }
 
+    public Class<T> getType() {
+        return type;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
     @Override
     public Jdbi getJdbi() {
         return jdbi;

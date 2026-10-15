@@ -42,7 +42,7 @@ public class TableCreation {
     }
 
     public String getChatMessagesSql() {
-        return String.format(CREATE_CHAT_MESSAGES, chatMessagesName, chatBranchesName, chatMessagesName);
+        return String.format(CREATE_CHAT_MESSAGES, chatMessagesName, chatBranchesName, chatBranchesName,chatTemplatesName);
     }
 
     public String getIndexChatBranchesConversationUpdatedSql() {
@@ -66,8 +66,8 @@ public class TableCreation {
     public static final String CREATE_CONVERSATIONS = """
     CREATE TABLE %s (
         id TEXT PRIMARY KEY NOT NULL,
-        default_chat_template_id TEXT,
-        FOREIGN KEY (default_chat_template_id)
+        chat_default_template_id TEXT,
+        FOREIGN KEY (chat_default_template_id)
             REFERENCES %s(id) ON DELETE SET NULL
     )
     """;
@@ -137,7 +137,10 @@ public class TableCreation {
 
         FOREIGN KEY (parent_message_id, conversation_id)
             REFERENCES %s(id, conversation_id)
-            DEFERRABLE INITIALLY DEFERRED
+            DEFERRABLE INITIALLY DEFERRED,
+                                                      
+        FOREIGN KEY (chat_template_id) 
+            REFERENCES %s(id) ON DELETE CASCADE
     )
     """;
 

@@ -37,6 +37,21 @@ public class ChatSession extends SelfIDBean implements CloneSupport<Object> {
 
     public ChatSession() {
     }
+    
+    public ChatSession(ChatSession session) {
+        this.contextLength = session.contextLength;
+        this.integrations = Cloner.get().cloneCollection(session.integrations, ArrayList::new);
+        this.maxOutputTokens = session.maxOutputTokens;
+        this.minP = session.minP;
+        this.model = session.model;
+        this.reasoning = session.reasoning;
+        this.repeatPenalty = session.repeatPenalty;
+        this.store = session.store;
+        this.systemPrompt = session.systemPrompt;
+        this.temperature = session.temperature;
+        this.topK = session.topK;
+        this.topP = session.topP;
+    }
 
 
     public String getModel() {
@@ -146,6 +161,10 @@ public class ChatSession extends SelfIDBean implements CloneSupport<Object> {
         ChatSession session = F.cast(super.clone());
         session.integrations = cloner.cloneCollection(integrations, ArrayList::new);
         return session;
+    }
+    
+    public ChatSession justConfig(){
+        return this;
     }
 
 }

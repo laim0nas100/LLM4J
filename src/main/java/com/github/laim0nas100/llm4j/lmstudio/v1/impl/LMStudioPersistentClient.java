@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  *
  * @author Lemmin
  */
-public class LMStudioPersistentClient extends LMStudioChatStoreNew {
+public class LMStudioPersistentClient extends LMStudioChatStore {
 
     public static final String PROVIDER = "LM-Studio";
 

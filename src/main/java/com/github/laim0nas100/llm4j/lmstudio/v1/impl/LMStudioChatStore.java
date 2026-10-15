@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Lemmin
  */
-public class LMStudioChatStoreNew implements ChatStore, GlobalCTX.SqlDependency {
+public class LMStudioChatStore implements ChatStore, GlobalCTX.SqlDependency {
 
     protected TableCreation creation;
     protected Map<Class, TableAccess> tables = new HashMap<>();
@@ -26,7 +26,7 @@ public class LMStudioChatStoreNew implements ChatStore, GlobalCTX.SqlDependency 
     protected Map<String, ChatSession> templates = new ConcurrentHashMap<>();
     
 
-    public LMStudioChatStoreNew(TableCreation tableCreation) {
+    public LMStudioChatStore(TableCreation tableCreation) {
         this.creation = Objects.requireNonNull(tableCreation);
 
     }

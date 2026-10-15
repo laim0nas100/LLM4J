@@ -21,14 +21,14 @@ import java.util.stream.Stream;
  *
  * @author Lemmin
  */
-public class LMStudioPersistentClient extends LMStudioChatStore {
+public class LMStudioPersistentClient extends LMStudioChatStoreNew {
 
     public static final String PROVIDER = "LM-Studio";
 
     protected LMStudioChattingClient client;
 
-    public LMStudioPersistentClient(SqlService sqlService, TableCreation tableCreation, LMStudioChattingClient client) {
-        super(sqlService, tableCreation);
+    public LMStudioPersistentClient(TableCreation tableCreation, LMStudioChattingClient client) {
+        super(tableCreation);
         this.client = Objects.requireNonNull(client);
     }
 

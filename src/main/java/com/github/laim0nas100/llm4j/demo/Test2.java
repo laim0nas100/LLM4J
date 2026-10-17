@@ -34,10 +34,11 @@ public class Test2 {
 //        integrations.add(new PluginIntegration("mcp/brightdata"));
 //        integrations.add(new Integration.PluginIntegration("mcp/local"));
         session.setIntegrations(integrations);
-        fullClient.initializeTemplate("QWEN", session).throwAnyGet();
-        SafeOpt<LMStudioChatStore.LMStudioResponse> newChat = fullClient.startNewChat("QWEN", "Hello, please respond in a short sentence", List.of());
+//        fullClient.initializeTemplate("QWEN", session).throwAnyGet();
+        SafeOpt<LMStudioChatStore.LMStudioResponse> continueChat = fullClient.continueChat("61", "61", "Ok, thanks. That will be all.", List.of());
+//        SafeOpt<LMStudioChatStore.LMStudioResponse> newChat = fullClient.startNewChat("QWEN", "Hello, please respond in a short sentence", List.of());
         
-        LMStudioChatStore.LMStudioResponse response = newChat.get();
+        LMStudioChatStore.LMStudioResponse response = continueChat.get();
         
         LLMEventAccumulator acc = response.accumulator();
         

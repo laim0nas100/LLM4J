@@ -32,7 +32,7 @@ public class LMStudioPersistentClient extends LMStudioChatStore {
     }
 
     public SafeOpt<LMStudioResponse> startNewChat(String templateName, Object input, List<String> attachments) {
-        return getConfig(templateName).map(config -> {
+        return getConfigByName(templateName).map(config -> {
             ChatRequest chatRequest = new ChatRequest(config);
             chatRequest.setInput(input);
             return safeHandle(handle -> {
@@ -77,10 +77,10 @@ public class LMStudioPersistentClient extends LMStudioChatStore {
                 throw new IllegalArgumentException(
                         "Branch does not belong to the conversation");
             }
+            
 
-            var config = getConfig(conv.chat_default_template_id())
-                    .throwAnyGet();
-
+            var config = getConfigById(conv.chat_default_template_id()).throwAnyGet();
+            
             var chatRequest = new ChatRequest(config);
             chatRequest.setInput(input);
 

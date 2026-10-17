@@ -63,9 +63,9 @@ public class LMStudioChatStore implements ChatStore, GlobalCTX.SqlDependency {
     public <T extends Entity> TableAccessEntity<T> tableFor(Class<T> type) {
         return tables.get(type);
     }
-    
-    public SafeOpt<ChatTemplate> initializeTemplate(String name,ChatSession template){
-        return safeHandle(hanle ->{
+
+    public SafeOpt<ChatTemplate> initializeTemplate(String name, ChatSession template) {
+        return safeHandle(hanle -> {
             ChatSession justConfig = template.justConfig();
             String config = jsonMapper().writeValueAsString(justConfig);
             Helpers.ChatTemplateHold hold = new Helpers.ChatTemplateHold();
@@ -75,7 +75,7 @@ public class LMStudioChatStore implements ChatStore, GlobalCTX.SqlDependency {
         }, template);
     }
 
-    public SafeOpt<ChatSession> getConfig(String name) {
+    public SafeOpt<ChatSession> getConfigByName(String name) {
         ChatSession found = templates.getOrDefault(name, null);
         if (found != null) {
             return SafeOpt.of(found);
@@ -89,6 +89,18 @@ public class LMStudioChatStore implements ChatStore, GlobalCTX.SqlDependency {
         });
     }
 
+    public SafeOpt<ChatSession> getConfigById(String id) {
+        ChatSession found = templates.getOrDefault(id, null);
+        if (found != null) {
+            return SafeOpt.of(found);
+        }
+        return getTemplate(id).map(template -> {
+            return jsonMapper().readValue(template.config_json(), ChatSession.class);
+        }).peek(config -> {
+            templates.putIfAbsent(id, config);
+        });
+    }
+
     public SafeOpt<String> getLastResponseIdForBranch(String branchId) {
         String found = branchLastResponseId.getOrDefault(branchId, null);
         if (found != null) {
@@ -97,7 +109,9 @@ public class LMStudioChatStore implements ChatStore, GlobalCTX.SqlDependency {
         return safeHandle(handle -> {
             String branchTableName = tableFor(ChatBranch.class).getTableName();
             String messageTableName = tableFor(ChatMessage.class).getTableName();
-            String provider_json = handle.createQuery("SELECT m.provider_json FROM %s AS m %s AS b WHERE m.branch_id = b.id AND m.id = b.head_message_id".formatted(messageTableName, branchTableName)).mapTo(String.class).one();
+            String provider_json = handle.createQuery("SELECT m.provider_json FROM %s AS m, %s AS b WHERE m.branch_id = b.id AND m.id = b.head_message_id AND b.id = :branch_id".formatted(messageTableName, branchTableName))
+                    .bind("branch_id", branchId)
+                    .mapTo(String.class).one();
             return jsonMapper().readValue(provider_json, LMStudioResponseMeta.class).responseId;
         }, branchId).peek(respId -> {
             branchLastResponseId.putIfAbsent(branchId, respId);

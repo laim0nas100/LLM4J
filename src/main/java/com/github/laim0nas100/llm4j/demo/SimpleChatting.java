@@ -1,6 +1,5 @@
 package com.github.laim0nas100.llm4j.demo;
 
-import com.github.laim0nas100.llm4j.GlobalCTX;
 import com.github.laim0nas100.llm4j.GlobalCTX.Globals;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
 import com.github.laim0nas100.llm4j.lmstudio.v1.ChatRequest;

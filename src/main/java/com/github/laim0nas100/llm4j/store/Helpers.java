@@ -1,14 +1,12 @@
 package com.github.laim0nas100.llm4j.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.laim0nas100.llm4j.GlobalCTX;
-import com.github.laim0nas100.llm4j.lmstudio.v1.InputItem.ImageInput;
-import com.github.laim0nas100.llm4j.lmstudio.v1.InputItem.TextInput;
+import com.github.laim0nas100.llm4j.GlobalCTX.Globals;
 import com.github.laim0nas100.llm4j.store.Conversation.MessageRole;
 import com.github.laim0nas100.llm4j.store.Conversation.MessageStatus;
-import com.github.laim0nas100.llm4j.store.MessageStep.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -96,21 +94,30 @@ public class Helpers {
 
     }
 
-    public static class ChatContentHold {
+    public static class ChatContentHold implements Globals {
 
         public List<String> attachments = new ArrayList<>();
         public String content_json = "{}";
         public String provider;
         public String provider_json = "{}";
         public MessageRole role;
-        public MessageStatus status = Conversation.MessageStatus.COMPLETE;
+        public MessageStatus status;
+        
+        public String getAttachmentsJson() throws JsonProcessingException{
+            return jsonMapper().writeValueAsString(attachments);
+        }
 
         public List<String> getAttachments() {
             return attachments;
         }
 
         public void setAttachments(List<String> attachments) {
-            this.attachments = attachments;
+            this.attachments.clear();
+            for(String s:attachments){
+                if(!StringUtils.isBlank(s)){
+                    this.attachments.add(s);
+                }
+            }
         }
 
         public String getContent_json() {
@@ -153,12 +160,13 @@ public class Helpers {
             this.status = status;
         }
         
-        public static ChatContentHold userMessage(String provider, String content_json){
+        public static ChatContentHold userMessage(String provider, String content_json, List<String> attachments){
             var hold = new ChatContentHold();
             hold.setProvider(provider);
             hold.setContent_json(content_json);
             hold.setStatus(MessageStatus.COMPLETE);
             hold.setRole(MessageRole.USER);
+            hold.setAttachments(attachments);
             return hold;
         }
         

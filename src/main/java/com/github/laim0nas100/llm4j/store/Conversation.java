@@ -1,7 +1,8 @@
 package com.github.laim0nas100.llm4j.store;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.laim0nas100.llm4j.store.Helpers.ChatContentHold;
 import java.time.Instant;
-import java.util.List;
 
 /**
  *
@@ -74,14 +75,23 @@ public record Conversation(String id, String chat_default_template_id) implement
             String chat_template_id,
             MessageRole role,
             MessageStatus status,
-            String source,
-            String source_json,
-            List<String> attachments,
+            String proxy,
+            String proxy_json,
+            String attachments_json,
             String content_json,
             String provider,
             String provider_json,
             Instant created_at,
             Instant updated_at
-            ) implements Entity {}
+            ) implements Entity {
+
+        public ChatMessage updatedContent(ChatContentHold hold) throws JsonProcessingException {
+            return new ChatMessage(id, conversation_id, branch_id, parent_message_id, chat_template_id, hold.getRole(), hold.getStatus(), proxy, proxy_json, hold.getAttachmentsJson(), hold.getContent_json(), hold.getProvider(), hold.getProvider_json(), created_at, Instant.now());
+        }
+        
+        public ChatMessage updatedProviderJson(String provider_json) throws JsonProcessingException {
+            return new ChatMessage(id, conversation_id, branch_id, parent_message_id, chat_template_id, role, status, proxy, proxy_json, attachments_json, content_json, provider, provider_json, created_at, Instant.now());
+        }
+    }
 
 }

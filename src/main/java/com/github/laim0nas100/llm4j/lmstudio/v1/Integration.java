@@ -1,9 +1,13 @@
 package com.github.laim0nas100.llm4j.lmstudio.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.laim0nas100.commonslb.F;
 import com.github.laim0nas100.commonslb.clone.CloneSupport;
 import com.github.laim0nas100.commonslb.clone.Cloner;
+import com.github.laim0nas100.llm4j.lmstudio.v1.Integration.EphemeralMcpIntegration;
+import com.github.laim0nas100.llm4j.lmstudio.v1.Integration.PluginIntegration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +17,22 @@ import java.util.Map;
  *
  * @author Lemmin
  */
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(
+            value = PluginIntegration.class,
+            name = "plugin"
+    ),
+    @JsonSubTypes.Type(
+            value = EphemeralMcpIntegration.class,
+            name = "ephemeral_mcp"
+    )
+})
 public interface Integration extends CloneSupport<Integration> {
 
     public static class PluginIntegration implements Integration {

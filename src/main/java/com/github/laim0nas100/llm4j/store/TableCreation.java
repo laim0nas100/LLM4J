@@ -42,7 +42,7 @@ public class TableCreation {
     }
 
     public String getChatMessagesSql() {
-        return String.format(CREATE_CHAT_MESSAGES, chatMessagesName, chatBranchesName, chatBranchesName,chatTemplatesName);
+        return String.format(CREATE_CHAT_MESSAGES, chatMessagesName, chatBranchesName, chatMessagesName,chatTemplatesName);
     }
 
     public String getIndexChatBranchesConversationUpdatedSql() {
@@ -116,10 +116,10 @@ public class TableCreation {
         proxy TEXT,
         proxy_json TEXT NOT NULL
                     CHECK (json_valid(proxy_json)),
-        attachments TEXT NOT NULL
+        attachments_json TEXT NOT NULL
             CHECK (
-                json_valid(attachments)
-                AND json_type(attachments) = 'array'
+                json_valid(attachments_json)
+                AND json_type(attachments_json) = 'array'
             ),
         content_json TEXT NOT NULL
                    CHECK (json_valid(content_json)),

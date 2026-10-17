@@ -1,5 +1,6 @@
 package com.github.laim0nas100.llm4j.lmstudio.v1.impl;
 
+import com.github.laim0nas100.llm4j.lmstudio.v1.ChatResponse;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent.ChatEnd;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMEvent.ChatStart;
@@ -27,25 +28,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoCloseable {
 
     private final Stream<LLMEvent> stream;
     private final Iterator<LLMEvent> source;
-    private final State state = new State();
+    private final State state;
+    private final String messageId;
 
     private boolean closed;
 
-    public LLMEventAccumulator(Stream<LLMEvent> stream) {
+    public LLMEventAccumulator(String messageId, Stream<LLMEvent> stream, Consumer<ResponseContent> onFinish) {
         this.stream = Objects.requireNonNull(stream);
         this.source = stream.iterator();
+        this.messageId = Objects.requireNonNull(messageId);
+        this.state = new State(onFinish);
     }
 
     public record ResponseContent(
             int version,
             List<MessageStep> steps,
             boolean completed,
+            ChatResponse completedResponse,
             LLMException error
             ) {
 
@@ -87,7 +93,8 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
             state.accept(event);
 
             // Return chat.end to the caller, but close immediately.
-            if (event instanceof ChatEnd) {
+            if (event instanceof ChatEnd end) {
+                state.chatResult = end;
                 state.finish();
                 close();
             }
@@ -111,6 +118,10 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
         return closed;
     }
 
+    public String getMessageId() {
+        return messageId;
+    }
+
     @Override
     public void close() {
         if (!closed) {
@@ -124,7 +135,8 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
         Objects.requireNonNull(stream);
 
         try (stream) {
-            var accumulator = new State();
+            var accumulator = new State(c -> {
+            });
             var iterator = stream.iterator();
 
             while (iterator.hasNext()) {
@@ -155,6 +167,12 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
         private LLMToolEvent lastToolEvent;
         private LLMException terminalError;
         private boolean chatEnded;
+        private ChatEnd chatResult;
+        private final Consumer<ResponseContent> onFinish;
+
+        private State(Consumer<ResponseContent> onFinish) {
+            this.onFinish = Objects.requireNonNull(onFinish);
+        }
 
         /**
          * Returns true when chat.end is received.
@@ -166,9 +184,8 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
                 return false;
             }
 
-            if (event instanceof ChatEnd) {
+            if (event instanceof ChatEnd resp) {
                 closeOpenSteps();
-                chatEnded = true;
                 return true;
             }
 
@@ -328,10 +345,16 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
         }
 
         ResponseContent finish() {
+            if (chatEnded) {
+                throw new IllegalStateException("Multiple 'finish' calls");
+            }
             chatEnded = true;
             closeOpenSteps();
 
-            return snapshot();
+            ResponseContent snapshot = snapshot();
+            onFinish.accept(snapshot);
+            return snapshot;
+
         }
 
         ResponseContent snapshot() {
@@ -339,6 +362,7 @@ public final class LLMEventAccumulator implements Iterator<LLMEvent>, AutoClosea
                     1,
                     steps,
                     chatEnded && terminalError == null,
+                    chatResult == null ? null : chatResult.result(),
                     terminalError
             );
         }

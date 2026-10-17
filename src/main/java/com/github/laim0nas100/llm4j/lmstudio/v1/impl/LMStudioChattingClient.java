@@ -24,7 +24,7 @@ public class LMStudioChattingClient implements Globals{
     
     public static final String ENDPOINT = "/api/v1/chat";
     protected final AdapterCodec adapterCodec = AdapterCodec.newBuilder()
-            .encoder(JacksonAdapterFactory.createJsonEncoder())
+            .encoder(JacksonAdapterFactory.createJsonEncoder(jsonMapper()))
             .decoder(JacksonAdapterFactory.createJsonDecoder(jsonMapper()))
             .build();
 
@@ -42,6 +42,8 @@ public class LMStudioChattingClient implements Globals{
                 .baseUri(baseURI)
                 .adapterCodec(adapterCodec)
                 .build();
+        
+        register(methanol);
     }
 
     public ChatResponse sendSync(ChatRequest request) throws IOException, InterruptedException {

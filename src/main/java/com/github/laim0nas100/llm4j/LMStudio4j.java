@@ -73,7 +73,7 @@ public class LMStudio4j {
         SqlService db = new SqlService(DB_FILE.toPath());
         var builder = new ResourcePersistentMcpServer.ResourcePersistanntBuilder<>();
         ResourcePersistentMcpServer mcpServer = builder
-                .withKeyValueStore(db.keyValueStore)
+                .withKeyValueStore(db.keyStore)
                 .withPersistantResources(db.fileStore)
                 .withTool(createReadAttachmentTool(), ToolDefinition.simpleText(request ->{
                     return SafeOpt.of(request).map(r ->{

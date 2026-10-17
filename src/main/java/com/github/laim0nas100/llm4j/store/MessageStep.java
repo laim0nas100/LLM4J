@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMException;
 import com.github.laim0nas100.llm4j.lmstudio.v1.LLMToolEvent;
 import com.github.laim0nas100.llm4j.store.MessageStep.*;
+import java.util.List;
 
 /**
  *
@@ -24,6 +25,9 @@ import com.github.laim0nas100.llm4j.store.MessageStep.*;
     @JsonSubTypes.Type(value = ErrorStep.class, name = "error")
 })
 public interface MessageStep {
+    
+    public record MessageContent(int version, String type, List<MessageStep> steps){
+    }
     
     public record TextStep(String type, String text) implements MessageStep {
 

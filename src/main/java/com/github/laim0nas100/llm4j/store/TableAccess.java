@@ -107,7 +107,7 @@ public class TableAccess<T> implements JdbiMixin {
             Update update = handle.createUpdate(sb.toString());
 
             for (QuickFields.RefInfoField field : refInfo.getFields()) {
-                update.bind(field.getName(), field.getFieldExternalValue(object).throwAnyGet());
+                update.bind(field.getName(), field.getFieldExternalValue(object).throwAnyOrNull());
             }
 
             update.execute();
@@ -142,7 +142,7 @@ public class TableAccess<T> implements JdbiMixin {
             Update update = handle.createUpdate(sb.toString());
 
             for (QuickFields.RefInfoField field : refInfo.getFields()) {
-                update.bind(field.getName(), field.getFieldExternalValue(object).throwAnyGet());
+                update.bind(field.getName(), field.getFieldExternalValue(object).throwAnyOrNull());
             }
 
             return update.execute();

@@ -130,7 +130,7 @@ public interface ChatStore extends JdbiMixin, Globals {
                     content.getStatus(),
                     msgProxy.getProxy(),
                     msgProxy.getProxy_json(),
-                    content.getAttachments(),
+                    content.getAttachmentsJson(),
                     content.getContent_json(),
                     content.getProvider(),
                     content.getProvider_json(),
@@ -144,5 +144,28 @@ public interface ChatStore extends JdbiMixin, Globals {
             tableFor.get(ids.getBranchId()).map(branch -> branch.updateHeadMessageId(id)).map(branch -> tableFor.upsert(branch)).throwAnyGet();
             return inserted;
         }, ids, content, msgProxy);
+    }
+    
+    public default <T extends Entity> SafeOpt<T> getEntity(Class type, String id) {
+        return safeHandle(handle -> {
+            SafeOpt<T> get = tableFor(type).get(id);
+            return get.throwAnyGet();
+        }, id);
+    }
+
+    public default SafeOpt<Conversation> getConversation(String id) {
+        return getEntity(Conversation.class, id);
+    }
+
+    public default SafeOpt<ChatBranch> getBranch(String id) {
+        return getEntity(ChatBranch.class, id);
+    }
+
+    public default SafeOpt<ChatMessage> getMessage(String id) {
+        return getEntity(ChatMessage.class, id);
+    }
+    
+    public default SafeOpt<ChatTemplate> getTemplate(String id) {
+        return getEntity(ChatTemplate.class, id);
     }
 }

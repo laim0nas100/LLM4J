@@ -64,6 +64,8 @@ public class QuickFields {
         public <A> SafeOpt<A> getFieldExternalValue(T object);
 
         public <S, J> Mapper2Way<S, J> getMapper();
+        
+        public <S,J> void setMapper(Mapper2Way<S,J> mapper);
 
     }
 
@@ -86,7 +88,7 @@ public class QuickFields {
                 Map<String, Object> valueMap = new LinkedHashMap<>();
                 for (RefInfoField field : getFields()) {
                     SafeOpt value = mapping ? field.getFieldExternalValue(object) : field.getFieldValue(object);
-                    valueMap.put(field.getName(), value.throwAnyGet());
+                    valueMap.put(field.getName(), value.throwAnyOrNull());
                 }
                 return valueMap;
             });
@@ -113,6 +115,7 @@ public class QuickFields {
             for (String name : getFieldNames()) {
                 String insert = pre + name + post;
                 if (first) {
+                    first = false;
                     sb.append(insert);
                 } else {
                     sb.append(", ").append(insert);
@@ -160,6 +163,11 @@ public class QuickFields {
         @Override
         public <S, J> Mapper2Way<S, J> getMapper() {
             return mapper;
+        }
+
+        @Override
+        public <S, J> void setMapper(Mapper2Way<S, J> mapper) {
+            this.mapper = Objects.requireNonNull(mapper);
         }
 
     }
@@ -257,6 +265,11 @@ public class QuickFields {
         @Override
         public <S, J> Mapper2Way<S, J> getMapper() {
             return mapper;
+        }
+        
+        @Override
+        public <S, J> void setMapper(Mapper2Way<S, J> mapper) {
+            this.mapper = Objects.requireNonNull(mapper);
         }
 
     }
